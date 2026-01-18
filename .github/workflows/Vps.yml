@@ -1,20 +1,33 @@
-name: vps
- 
-# Controls when the workflow will run
+name: Free VPS with Auto Save
+
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
   workflow_dispatch:
- 
+
 jobs:
   build:
     runs-on: ubuntu-latest
- 
+
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
- 
+
+      # 🔄 RESTORE VPS DATA
+      - name: Restore VPS cache
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/vps
+          key: vps-cache
+          restore-keys: vps-cache
+
+      # ▶️ RUN VPS
       - name: Run VPS
-        run: curl -sSf https://sshx.io/get | sh -s run
+        run: |
+          mkdir -p /home/runner/vps
+          curl -sSf https://sshx.io/get | sh -s run
+
+      # 💾 SAVE VPS DATA
+      - name: Save VPS cache
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/vps
+          key: vps-cache
